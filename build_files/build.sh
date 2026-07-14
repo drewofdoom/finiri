@@ -11,10 +11,9 @@ cp -avf "/ctx/system_files"/. /
 # enable COPR repos
 log "Enabling COPR repos..."
 COPR_REPOS=(
-  avengemedia/dms
+  avengemedia/danklinux
   rivenirvana/morewaita-icon-theme
   scottames/ghostty
-  tofik/nwg-shell
   ulysg/xwayland-satellite
 )
 for repo in "${COPR_REPOS[@]}"; do
@@ -40,8 +39,9 @@ PKGS=(
   xdg-desktop-portal-gtk
   xwayland-run
 
-  # DMS
-  quickshell
+  # Niri
+  cava
+  cliphist
   dankcalendar-git
   danksearch
   dgop
@@ -49,12 +49,14 @@ PKGS=(
   dms-cli
   dms-greeter
   niri
+  qt6-qtmultimedia
+  quickshell
 
   # Theming
-  matugen
-  nwg-look
   adw-gtk3-theme
+  matugen
   morewaita-icon-theme
+  nwg-look
 
   # Fonts
   maple-fonts
@@ -65,26 +67,38 @@ PKGS=(
   ghostty-terminfo
   ghostty-shell-integration
   ghostty-fish-completion
+
+  # Containers
+  podman-compose
+  podman-machine
+  podman-tui
 )
 
-REMOVE_PKGS=(
-  nautilus-gsconnect
-  jetbrains-mono-fonts-all
-  gnome-tweaks
-  libappindicator-gtk3
-  libayatana-appindicator-gtk3
-  opendyslexic-fonts
-  zsh
-)
+# REMOVE_PKGS=(
+#   gnome-tweaks
+#   jetbrains-mono-fonts-all
+#   libappindicator-gtk3
+#   libayatana-appindicator-gtk3
+#   nautilus-gsconnect
+#   opendyslexic-fonts
+#   ptyxis
+#   zsh
+# )
 
 log "Installing packages..."
 dnf5 install -y --setopt=install_weak_deps=False "${PKGS[@]}"
 
-log "Removing unwanted packages..."
-dnf5 remove -y "${REMOVE_PKGS[@]}"
+# log "Removing unwanted packages..."
+# dnf5 remove -y "${REMOVE_PKGS[@]}"
 
 log "Cleaning up..."
 dnf5 clean all
 
+# make greeter-group-setup executable
+chmod +x /usr/bin/greeter-group-setup
+
+# setup services
 systemctl disable gdm.service
 systemctl enable greetd.service
+systemctl enable podman.socket
+systemctl enable greeter-group-setup.service

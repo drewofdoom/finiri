@@ -5,16 +5,16 @@ on:
     branches:
       - main
   schedule:
-    - cron: '05 10 * * *'  # 10:05am UTC everyday
+    - cron: "05 10 * * *" # 10:05am UTC everyday
   push:
     branches:
       - main
     paths-ignore:
-      - '**/README.md'
+      - "**/README.md"
   workflow_dispatch:
 
 env:
-  IMAGE_REGISTRY: "ghcr.io/${{ github.repository_owner }}"  # do not edit
+  IMAGE_REGISTRY: "ghcr.io/${{ github.repository_owner }}" # do not edit
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref || github.run_id }}-${{ inputs.brand_name}}-${{ inputs.stream_name }}
@@ -75,22 +75,22 @@ jobs:
             ${DEFAULT_TAG}
 
       # This is optional, this provides smaller delta updates
-      - name: Rechunk with rpm-ostree
-        id: rechunk
-        run: |
-          sudo -E $(command -v just) ostree-rechunk \
-            ${IMAGE_NAME} \
-            ${DEFAULT_TAG}
+      # - name: Rechunk with rpm-ostree
+      #   id: rechunk
+      #   run: |
+      #     sudo -E $(command -v just) ostree-rechunk \
+      #       ${IMAGE_NAME} \
+      #       ${DEFAULT_TAG}
 
       # If you are feeling adventurous, use the new distro agnostic rechunker
       # https://github.com/coreos/chunkah
       # You can delete the Rechunk with rpm-ostree portion then if you use this
-      #- name: Rechunk with Chunkah
-      #  id: rechunk
-      #  run: |
-      #    sudo -E $(command -v just) rechunk \
-      #      ${IMAGE_NAME} \
-      #      ${DEFAULT_TAG}
+      - name: Rechunk with Chunkah
+        id: rechunk
+        run: |
+          sudo -E $(command -v just) rechunk \
+            ${IMAGE_NAME} \
+            ${DEFAULT_TAG}
 
       - name: Generate Build Tags
         id: gen-build-tags
@@ -147,7 +147,7 @@ jobs:
         if: github.event_name != 'pull_request' && github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
         # https://github.com/containers/container-libs/issues/388
         with:
-          cosign-release: 'v2.6.3'
+          cosign-release: "v2.6.3"
 
       - name: Sign container image
         id: sign-image
@@ -158,4 +158,3 @@ jobs:
           DIGEST: ${{ steps.push-image.outputs.digest }}
         run: |
           cosign sign -y --key env://COSIGN_PRIVATE_KEY ${IMAGE_REGISTRY}/${IMAGE_NAME}@${DIGEST}
-

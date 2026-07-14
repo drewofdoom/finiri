@@ -12,6 +12,7 @@ cp -avf "/ctx/system_files"/. /
 log "Enabling COPR repos..."
 COPR_REPOS=(
   avengemedia/danklinux
+  avengemedia/dms
   rivenirvana/morewaita-icon-theme
   scottames/ghostty
   ulysg/xwayland-satellite
@@ -22,14 +23,13 @@ done
 
 # Terra Repo
 log "Adding Terra repo..."
-curl -fsSL https://github.com/terrapkg/subatomic-repos/raw/main/terra.repo \
-  -o /etc/yum.repos.d/terra.repo
+dnf5 -y install --nogpgcheck --repofrompath 'terra,https://repos.fyralabs.com/terra$releasever' terra-release
 
 # Repo priorities (lower = higher priority)
-echo "priority=1" >>/etc/yum.repos.d/_copr:copr.fedorainfracloud.org:ulysg:xwayland-satellite.repo
-echo "priority=1" >>/etc/yum.repos.d/_copr:copr.fedorainfracloud.org:scottames:ghostty.repo
-echo "priority=2" >>/etc/yum.repos.d/_copr:copr.fedorainfracloud.org:avengemedia:danklinux.repo
-dnf5 -y config-manager setopt '*danklinux*.exclude=ghostty*'
+dnf5 -y config-manager setopt '*dms*.priority=1'
+dnf5 -y config-manager setopt '*xwayland-satellite*.priority=1'
+dnf5 -y config-manager setopt '*ghostty*.priority=1'
+dnf5 -y config-manager setopt '*danklinux*.exclude=ghostty*' '*danklinux*.priority=2'
 dnf5 -y config-manager setopt 'terra.enabled=1' 'terra*.priority=3' 'terra*.exclude=ghostty matugen*'
 
 # Install packages
@@ -74,31 +74,19 @@ PKGS=(
   podman-tui
 )
 
-# REMOVE_PKGS=(
-#   gnome-tweaks
-#   jetbrains-mono-fonts-all
-#   libappindicator-gtk3
-#   libayatana-appindicator-gtk3
-#   nautilus-gsconnect
-#   opendyslexic-fonts
-#   ptyxis
-#   zsh
-# )
-
 log "Installing packages..."
 dnf5 install -y --setopt=install_weak_deps=False "${PKGS[@]}"
-
-# log "Removing unwanted packages..."
-# dnf5 remove -y "${REMOVE_PKGS[@]}"
 
 log "Cleaning up..."
 dnf5 clean all
 
-# make greeter-group-setup executable
+# make group scripts executable
 chmod +x /usr/bin/greeter-group-setup
+chmod +x /usr/bin/realtime-group-setup
 
 # setup services
 systemctl disable gdm.service
 systemctl enable greetd.service
 systemctl enable podman.socket
 systemctl enable greeter-group-setup.service
+systemctl enable realtime-group-setup.service

@@ -4,7 +4,7 @@ COPY build_files /
 COPY system_files /system_files
 
 # Base Image
-FROM ghcr.io/ublue-os/bluefin-nvidia-open:stable
+FROM ghcr.io/ublue-os/bluefin:stable
 
 ### MODIFICATIONS
 ## make modifications desired in your image and install packages by modifying the build.sh script

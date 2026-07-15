@@ -14,13 +14,13 @@
 
 ## What's Different?
 
-| Category             | Bluefin               | Kirgo                                |
-| -------------------- | --------------------- | ------------------------------------ |
-| **Compositor**       | GNOME Shell           | Niri                                 |
-| **Display Manager**  | GDM                   | greetd                               |
-| **Fonts**            | Full multilingual set | English + emoji only (~5–7 GB saved) |
-| **Apps**             | Full suite            | Essential apps only                  |
-| **Shell Extensions** | GNOME extensions      | None (Niri handles workspaces)       |
+| Category             | Bluefin               | Kirgo                |
+| -------------------- | --------------------- | -------------------- |
+| **Compositor**       | GNOME Shell           | Niri                 |
+| **Display Manager**  | GDM                   | greetd               |
+| **Fonts**            | Full multilingual set | English + emoji only |
+| **Apps**             | Full suite            | Essential apps only  |
+| **Shell Extensions** | GNOME extensions      | Dank Material Shell  |
 
 ---
 
@@ -83,12 +83,17 @@ env BASE_IMAGE=ghcr.io/ublue-os/bluefin-nvidia-open:stable IMAGE_NAME=kirgo-nvid
 
 #### Or use Flatpak for most applications
 
-flatpak install flathub <application>
+`flatpak install flathub <application>`
+
+#### Or install stuff with brew
+
+`brew install <package-name>`
 
 #### Remove layered packages
 
-rpm-ostree uninstall <package-name>
-Note: Do not remove base system packages. Use Flatpaks for application changes.
+`rpm-ostree uninstall <package-name>`
+
+- Note: Do not remove base system packages. Use Flatpaks for application changes.
 
 #### Updating latest image
 

@@ -182,6 +182,7 @@ PKGS=(
   adw-gtk3-theme
   bibata-cursor-theme
   matugen
+  papirus-icon-theme
 
   # Terminal
   ghostty

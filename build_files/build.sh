@@ -9,7 +9,7 @@ RELEASE="$(rpm -E %fedora)"
 cp -avf "/ctx/system_files"/. /
 
 declare -a RM_PKGS=(
-    # ========== FONTS ==========
+    # Fonts
     "google-noto-sans-cjk-vf-fonts"
     "google-noto-sans-mono-cjk-vf-fonts"
     "google-noto-serif-cjk-vf-fonts"
@@ -39,7 +39,7 @@ declare -a RM_PKGS=(
     "madan-fonts"
     "stix-fonts"
 
-    # ========== APPS ==========
+    # Apps
     "evolution-data-server"
     "evolution-ews-core"
     "evolution-ews-langpacks"
@@ -66,7 +66,7 @@ declare -a RM_PKGS=(
     "gnome-online-accounts-libs"
     "gnome-remote-desktop"
 
-    # ========== GNOME Core ==========
+    # Extra GNOME Core
     "gdm"
     "gnome-shell"
     "gnome-shell-extension-apps-menu"
@@ -82,36 +82,35 @@ declare -a RM_PKGS=(
     "gnome-tour"
     "gnome-user-docs"
 
-    # ========== BLUETOOTH GUI ==========
+    # Bluetooth GUI
     "gnome-bluetooth"
     "blueberry"
 )
 
-log "Verifying packages exist before removal..."
-MISSING=()
+log "Checking which packages exist..."
+declare -a VALID_RM_PKGS=()
+
 for pkg in "${RM_PKGS[@]}"; do
-    if ! rpm -qa --qf '%{NAME}\n' 2>/dev/null | grep -Fxq "$pkg"; then
-        MISSING+=("$pkg")
-        log "⚠  $pkg NOT FOUND"
+    # Use dnf to check if package exists/is installed
+    if dnf5 list installed "$pkg" &>/dev/null; then
+        VALID_RM_PKGS+=("$pkg")
+        log "✓ $pkg"
+    else
+        log "⚠ $pkg not found"
     fi
 done
 
-if [[ ${#MISSING[@]} -gt 0 ]]; then
-    log "WARNING: ${#MISSING[@]} packages not installed - removing from RM_PKGS"
-    # Filter the array
-    declare -a FILTERED_RM=()
-    for pkg in "${RM_PKGS[@]}"; do
-        if [[ ! " ${MISSING[*]} " =~ " ${pkg} " ]]; then
-            FILTERED_RM+=("$pkg")
-        fi
-    done
-    RM_PKGS=("${FILTERED_RM[@]}")
+# Filter array
+RM_PKGS=("${VALID_RM_PKGS[@]}")
+
+log "Removing packages..."
+if [[ ${#RM_PKGS[@]} -gt 0 ]]; then
+    dnf5 remove -y "${RM_PKGS[@]}" || exit 1
+else
+    log "Nothing to remove"
 fi
 
-log "Uninstalling packages..."
-dnf5 remove -y "${RM_PKGS[@]}"
-
-# enable COPR repos
+# Extra repos
 log "Enabling COPR repos..."
 COPR_REPOS=(
   avengemedia/danklinux
@@ -124,7 +123,6 @@ for repo in "${COPR_REPOS[@]}"; do
   dnf5 -y copr enable "$repo"
 done
 
-# Terra Repo
 log "Adding Terra repo..."
 dnf5 -y install --nogpgcheck --repofrompath 'terra,https://repos.fyralabs.com/terra$releasever' terra-release
 
@@ -183,7 +181,6 @@ chmod +x /usr/bin/greeter-group-setup
 chmod +x /usr/bin/realtime-group-setup
 
 # setup services
-systemctl disable gdm.service
 systemctl enable greetd.service
 systemctl enable podman.socket
 systemctl enable greeter-group-setup.service

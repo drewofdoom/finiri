@@ -130,25 +130,25 @@ build $target_image=image_name $tag=default_tag:
 
     podman build "${PODMAN_BUILD_ARGS[@]}" .
 
-# Split the image for smaller updates (New)!
+# Split the image for smaller updates (Simplest)!
+[group('Build Virtual Machine Image')]
 rechunk $target_image=image_name $tag=default_tag:
-    #!/usr/bin/env bash
+    #!/usr/bin/bash
 
     set -xeuo pipefail
 
-    # TODO: pin chunkah image to hash once mature enough
-    # You may run into space issues on github runenrs as we are making a
-    # complete copy of the image
-    export CHUNKAH_CONFIG_STR=$(podman inspect "${target_image}")
-    podman run --rm --mount=type=image,src="${target_image}",target=/chunkah \
-    -e CHUNKAH_CONFIG_STR quay.io/coreos/chunkah:latest \
-    build \
-    --verbose \
-    --compressed \
-    --max-layers 128 \
-    --prune /sysroot/ \
-    --label ostree.commit- --label ostree.final-diffid- \
-    --tag "${target_image}:${tag}" | podman load
+    # No massive env vars - just mount the image directly
+    podman run --rm \
+      --mount=type=image,src="${target_image}:${tag}",target=/chunkah \
+      quay.io/coreos/chunkah:latest \
+      build \
+      --verbose \
+      --compressed \
+      --max-layers 128 \
+      --prune /sysroot/ \
+      --label ostree.commit- \
+      --label ostree.final-diffid- \
+      --tag "${target_image}:${tag}" | podman load
 
 # Split the image for smaller updates (Classical)!
 ostree-rechunk $target_image=image_name $tag=default_tag:

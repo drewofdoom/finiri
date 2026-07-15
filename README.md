@@ -95,7 +95,7 @@ env BASE_IMAGE=ghcr.io/ublue-os/bluefin-nvidia-open:stable IMAGE_NAME=kirgo-nvid
 
 - Note: Do not remove base system packages. Use Flatpaks for application changes.
 
-#### Updating latest image
+#### Updating to the latest image
 
 `ujust update`
 

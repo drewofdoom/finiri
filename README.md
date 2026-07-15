@@ -105,7 +105,7 @@ env BASE_IMAGE=ghcr.io/ublue-os/bluefin-nvidia-open:stable IMAGE_NAME=kirgo-nvid
 
 | Topic               | Resource                                   |
 | ------------------- | ------------------------------------------ |
-| General Bluefin     | https://projectblue.io                     |
+| General Bluefin     | https://projectbluefin.io                  |
 | uBlue Project       | https://universal-blue.org                 |
 | uBlue Template      | https://github.com/ublue-os/image-template |
 | Niri Compositor     | https://niri-wm.github.io/niri/            |
